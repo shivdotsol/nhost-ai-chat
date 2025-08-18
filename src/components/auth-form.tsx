@@ -22,6 +22,7 @@ export function AuthForm() {
         signUpEmailPassword,
         isLoading: isSigningUp,
         error: signUpError,
+        needsEmailVerification,
     } = useSignUpEmailPassword();
 
     const isLoading = isSigningIn || isSigningUp;
@@ -60,6 +61,12 @@ export function AuthForm() {
                 <TabsContent value="signup">
                     <Card>
                         <CardContent>
+                            {needsEmailVerification && (
+                                <div className="mb-2 text-red-700 border border-red-700 px-3 py-1 font-semibold">
+                                    Verification email sent, please check inbox
+                                    and spam.
+                                </div>
+                            )}
                             <form
                                 onSubmit={(e) => handleSubmit(e, "signup")}
                                 className="space-y-4"

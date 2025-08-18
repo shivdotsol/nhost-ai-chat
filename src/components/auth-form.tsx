@@ -59,12 +59,6 @@ export function AuthForm() {
 
                 <TabsContent value="signup">
                     <Card>
-                        {/* <CardHeader>
-                            <CardTitle>Sign Up</CardTitle>
-                            <CardDescription>
-                                Create a new account to get started
-                            </CardDescription>
-                        </CardHeader> */}
                         <CardContent>
                             <form
                                 onSubmit={(e) => handleSubmit(e, "signup")}
@@ -113,12 +107,6 @@ export function AuthForm() {
                 </TabsContent>
                 <TabsContent value="signin">
                     <Card>
-                        {/* <CardHeader>
-                            <CardTitle>Sign In</CardTitle>
-                            <CardDescription>
-                                Enter your credentials to access your account
-                            </CardDescription>
-                        </CardHeader> */}
                         <CardContent>
                             <form
                                 onSubmit={(e) => handleSubmit(e, "signin")}

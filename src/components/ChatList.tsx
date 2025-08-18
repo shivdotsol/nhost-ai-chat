@@ -4,6 +4,7 @@ import { useUserId } from "@nhost/react";
 import { Plus } from "lucide-react";
 import ChatTile from "./ChatTile";
 import LoadingSpinner from "./LoadingSpinner";
+import { useNavigate } from "react-router-dom";
 
 const GET_CHATS = gql`
     subscription GetChats($user_id: uuid!) {
@@ -24,8 +25,8 @@ const INSERT_CHAT = gql`
     }
 `;
 
-// function ChatList({ onSelectChat }) {
 function ChatList() {
+    const navigate = useNavigate();
     const inputRef = useRef<HTMLInputElement>(null);
     const userId = useUserId();
     if (!userId) return <div>no userid</div>;
@@ -35,7 +36,13 @@ function ChatList() {
         variables: { user_id: userId },
         skip: !userId,
     });
-    const [insertChat, { loading: insertLoading }] = useMutation(INSERT_CHAT);
+    const [insertChat] = useMutation(INSERT_CHAT);
+
+    interface Chat {
+        id: string;
+        title: string;
+        created_at: string;
+    }
 
     useEffect(() => {
         if (titleDialogVisible) {
@@ -45,8 +52,6 @@ function ChatList() {
     const handleNewChat = () => {
         setTitleDialogVisible(true);
     };
-
-    console.log(data);
 
     const handleCreateChat = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -130,24 +135,14 @@ function ChatList() {
             <h2 className="w-[60vw] px-5 py-2 text-2xl font-semibold text-black/80">
                 Recent chat history...
             </h2>
-            {/* <form onSubmit={handleNewChat}>
-                <input
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="New chat title"
-                    required
-                />
-                <button type="submit" disabled={insertLoading}>
-                    {insertLoading ? "Creating..." : "Create Chat"}
-                </button>
-            </form> */}
+
             <ul className="flex flex-col-reverse mx-auto">
-                {data?.chats.map((chat) => (
+                {data?.chats.map((chat: Chat) => (
                     <li key={chat.id}>
                         <ChatTile
                             title={chat.title}
                             time={formatDate(chat.created_at)}
+                            onClick={() => navigate(`/chat/${chat.id}`)}
                         />
                     </li>
                 ))}

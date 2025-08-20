@@ -1,69 +1,58 @@
-# React + TypeScript + Vite
+# nhost-ai-chat
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
+`nhost-ai-chat` is a real-time chat application with AI-powered responses, built using Nhost (with Hasura), n8n, OpenRouter, and a React frontend. Users can send messages, receive AI-generated replies, and view chat history seamlessly. The app leverages Nhost for authentication and database management, n8n for workflow automation, and OpenRouter for AI capabilities.
 
-Currently, two official plugins are available:
+## Features
+- Real-time messaging with WebSocket subscriptions.
+- AI-powered responses using the `meta-llama/llama-3-8b-instruct-free` model.
+- User authentication via Nhost.
+- Responsive React frontend deployed on Netlify.
+- Backend integration with Hasura for GraphQL and n8n for AI processing.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Technologies Used
+- **Frontend**: React, Apollo Client, @nhost/react
+- **Backend**: Nhost (Hasura, PostgreSQL), n8n
+- **AI**: OpenRouter API
+- **Deployment**: Netlify (frontend), Nhost (backend), n8n Cloud
+- **Authentication**: Nhost Auth (JWT)
 
-## Expanding the ESLint configuration
+## Setup and Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Prerequisites
+- Node.js (LTS version, e.g., 16.x or 18.x)
+- npm or yarn
+- Nhost account (for backend and auth)
+- n8n Cloud account (for workflows)
+- OpenRouter API key (free tier available)
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Local Development
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/your-username/nhost-ai-chat.git
+   cd nhost-ai-chat
+2. **Install Dependencies**
+    ```bash
+    npm install
+3. **Configure Env Variables**
+    ```bash
+    VITE_REACT_APP_NHOST_SUBDOMAIN="your_nhost_subdomain_here"
+4. **Run Locally**
+    ```bash
+    npm run start
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### Backend and Workflow
+- **Hasura Schema**: Managed via Nhost Console with the following tables:
+  - `chats`: Stores chat metadata (e.g., `id`, `user_id`).
+  - `messages`: Stores chat messages (e.g., `id`, `chat_id`, `content`, `is_ai`, `created_at`).
+- **n8n Workflow**: Deployed on a cloud instance at `https://shiwliwt.app.n8n.cloud/webhook/[your-webhook-id]`.
+  - **Webhook Trigger**: Initiated by the Hasura `sendMessage` action.
+  - **Process**:
+    1. Validates user ownership of `chat_id` using a GraphQL query (`CheckOwnership`).
+    2. Calls OpenRouter API with the user’s message using the `meta-llama/llama-3-8b-instruct-free` model.
+    3. Inserts the AI response into the `messages` table via a Hasura mutation (`InsertAIResponse`).
+  - **Nodes Used**: Webhook, HTTP Request (Hasura, OpenRouter), Set nodes for data transformation.
+- **Hasura Action**: `sendMessage` configured to:
+  - Accept `chat_id` and `content` as inputs.
+  - Forward the request to the n8n webhook URL.
+  - Return the AI `reply` (optional, handled via subscription in the frontend).

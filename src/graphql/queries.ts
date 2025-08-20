@@ -58,3 +58,11 @@ export const INSERT_MESSAGE = gql`
         }
     }
 `;
+
+export const SEND_MESSAGE = gql`
+    mutation SendMessage($chat_id: uuid!, $content: String!) {
+        sendMessage(chat_id: $chat_id, content: $content) {
+            reply
+        }
+    }
+`;

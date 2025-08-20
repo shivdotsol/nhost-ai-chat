@@ -14,6 +14,7 @@ import {
     GET_CHAT,
     SUBSCRIBE_TO_MESSAGES,
     INSERT_MESSAGE,
+    SEND_MESSAGE,
 } from "../graphql/queries";
 interface Chat {
     id: string;
@@ -59,6 +60,7 @@ export default function ChatPage() {
     );
 
     const [insertMessage] = useMutation(INSERT_MESSAGE);
+    const [sendMessageAction] = useMutation(SEND_MESSAGE);
 
     const messages: Message[] = messagesData?.messages || [];
     const chat: Chat | null = chatData?.chats_by_pk || null;
@@ -83,14 +85,19 @@ export default function ChatPage() {
         setInputMessage("");
 
         try {
-            const res = await insertMessage({
+            await insertMessage({
                 variables: {
                     content: messageContent,
                     chat_id: chatId,
                     isBot: false,
                 },
             });
-            console.log(res);
+            await sendMessageAction({
+                variables: {
+                    chat_id: chatId,
+                    content: messageContent,
+                },
+            });
         } catch (error) {
             console.error("Error sending message:", error);
             setInputMessage(messageContent); // Restore message on error

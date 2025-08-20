@@ -56,7 +56,11 @@ function ChatList() {
     const handleCreateChat = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!title) return;
-        await insertChat({ variables: { title, user_id: userId } });
+        const chatData = await insertChat({
+            variables: { title, user_id: userId },
+        });
+        const newChatId = chatData.data.insert_chats_one.id;
+        navigate(`/chat/${newChatId}`);
         setTitle("");
         setTitleDialogVisible(false);
     };

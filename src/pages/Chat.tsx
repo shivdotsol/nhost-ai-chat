@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { useQuery, useSubscription, useMutation } from "@apollo/client";
 import { useAuthenticationStatus, useUserData } from "@nhost/react";
+import { PulseLoader } from "react-spinners";
 import {
     Send,
     Bot,
@@ -38,6 +39,7 @@ export default function ChatPage() {
     const user = useUserData();
     const [inputMessage, setInputMessage] = useState("");
     const [isSending, setIsSending] = useState(false);
+    const [isReplying, setIsReplying] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -92,12 +94,14 @@ export default function ChatPage() {
                     isBot: false,
                 },
             });
+            setIsReplying(true);
             await sendMessageAction({
                 variables: {
                     chat_id: chatId,
                     content: messageContent,
                 },
             });
+            setIsReplying(false);
         } catch (error) {
             console.error("Error sending message:", error);
             setInputMessage(messageContent); // Restore message on error
@@ -111,13 +115,6 @@ export default function ChatPage() {
             e.preventDefault();
             handleSendMessage();
         }
-    };
-
-    const formatTime = (dateString: string) => {
-        return new Date(dateString).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-        });
     };
 
     // Loading and authentication checks
@@ -279,14 +276,13 @@ export default function ChatPage() {
                                                 ? "text-right"
                                                 : "text-left"
                                         }`}
-                                    >
-                                        {formatTime(message.created_at)}
-                                    </p>
+                                    ></p>
                                 </div>
                             </div>
                         ))
                     )}
                     <div ref={messagesEndRef} />
+                    {isReplying && <PulseLoader color="#8336fa" />}
                 </div>
             </div>
 
